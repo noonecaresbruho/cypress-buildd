@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build Launcher
+        working-directory: Launcher
+        run: dotnet publish CypressLauncher.csproj -c Release -f net8.0-windows -o build /p:LangVersion=latest
+
+      - name: Build Server DLLs
+        working-directory: Server
+        run: |
+          cmake --fresh -S . -B build -DCYPRESS_GW1=ON -DCYPRESS_GW2=ON -DCYPRESS_BFN=ON
+          cmake --build build --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-build
+          path: |
+            Launcher/build/
+            Server/build/Release/

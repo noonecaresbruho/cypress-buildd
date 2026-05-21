@@ -1,0 +1,93 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>CypressLauncher</AssemblyName>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Version>2.0.1</Version>
+    <Company>CypressLauncher</Company>
+    <Product>CypressLauncher</Product>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+    <ApplicationIcon>assets\cypressicons\ico\Burbank-CypressIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <!-- Windows-only: WinForms (for tray icon, folder dialog) -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <UseWindowsForms>True</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="CypressLauncher\launcher.config.json">
+      <Link>launcher.config.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="courgette.exe" Condition="Exists('courgette.exe')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GW2.patch" Condition="Exists('GW2.patch')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BFN.Patch" Condition="Exists('BFN.Patch')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\cypressicons\ico\Burbank-CypressIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\cypressicons\webp\Burbank-CypressIcon.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\fonts\burbankbigcondensed_bold.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\gameicons\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\gamebgs\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\mapbgs\**\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\modebgs\**\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\AI_Sets\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\CharacterIcons\**\*.webp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\translations\**\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NSec.Cryptography" Version="24.4.0" />
+    <PackageReference Include="Photino.NET" Version="3.1.18" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3405.78" Condition="'$(TargetFramework)' == 'net8.0-windows'" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\**" />
+  </ItemGroup>
+  <!-- Exclude resx with non-string resources from net8.0 (they use System.Drawing types) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <EmbeddedResource Remove="CypressLauncher.Properties.Resources.resx" />
+    <EmbeddedResource Remove="CypressLauncher\LaunchWindow.resx" />
+  </ItemGroup>
+  <Target Name="PruneWebView2WpfArtifacts" AfterTargets="Build;Publish" Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Delete Files="$(OutputPath)Microsoft.Web.WebView2.Wpf.dll;$(OutputPath)Microsoft.Web.WebView2.Wpf.xml" />
+    <Delete Files="$(PublishDir)Microsoft.Web.WebView2.Wpf.dll;$(PublishDir)Microsoft.Web.WebView2.Wpf.xml" Condition="'$(PublishDir)' != ''" />
+  </Target>
+</Project>
